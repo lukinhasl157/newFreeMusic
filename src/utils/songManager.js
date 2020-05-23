@@ -58,8 +58,8 @@ const setSongInQueue = (guildStore, authorID, channelID, video) => {
 const finish = (songStoreGuild) => {
 	songStoreGuild.dispatcher.on('finish', () => {
 		const { textChannelID } = songStoreGuild.queue.first(),
-		const firstSong = songStoreGuild.queue.first();
-		
+			firstSong = songStoreGuild.queue.first();
+
 		songsongStoreGuild.queue.delete(firstSong.id);
 
 		if (songStoreGuild.songs.size > 0) {
