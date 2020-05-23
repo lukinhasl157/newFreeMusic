@@ -56,22 +56,24 @@ const setSongInQueue = (guildStore, authorID, channelID, video) => {
 }
 
 const finish = (songStoreGuild) => {
-	songStoreGuild.dispatcher.on('finish', () => {
-		const { textChannelID } = songStoreGuild.queue.first(),
-			firstSong = songStoreGuild.queue.first();
+	setTimeout(() => {
+		songStoreGuild.dispatcher.on('finish', () => {
+			const { textChannelID } = songStoreGuild.queue.first(),
+				firstSong = songStoreGuild.queue.first();
 
-		songsongStoreGuild.queue.delete(firstSong.id);
+			songsongStoreGuild.queue.delete(firstSong.id);
 
-		if (songStoreGuild.songs.size > 0) {
-			return play(bot, songStoreGuild, video, authorID, channelID, memberConnection, video.video_url);
-		} else {
-			const channel = message.guild.channels.cache.get(textChannelID);
+			if (songStoreGuild.songs.size > 0) {
+				return play(bot, songStoreGuild, video, authorID, channelID, memberConnection, video.video_url);
+			} else {
+				const channel = message.guild.channels.cache.get(textChannelID);
 
-			if (botConnection) botConnection.leave();
+				if (botConnection) botConnection.leave();
 
-			return channel.send('As músicas acabaram.');
-		}
-	});
+				return channel.send('As músicas acabaram.');
+			}
+		});
+	}, 5000);
 }
 
 module.exports = { play, createGuildSettings, finish, setSongInQueue };
