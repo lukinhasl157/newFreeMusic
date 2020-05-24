@@ -57,7 +57,7 @@ const setSongInQueue = (guildStore, authorID, channelID, video) => {
 	});
 }
 
-const finish = (bot, botConnection, songStoreGuild) => {
+const finish = (bot, botConnection, songStoreGuild, video) => {
 	setTimeout(() => {
 		songStoreGuild.dispatcher.on('finish', () => {
 			const { textChannelID } = songStoreGuild.queue.first(),
