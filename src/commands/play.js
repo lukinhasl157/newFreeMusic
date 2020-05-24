@@ -30,8 +30,7 @@ module.exports = {
 					return message.channel.send(messageStore.noVideoFound);
 				} else {
 					const authorID = message.author.id,
-						channelID = message.channel.id,
-						{ video_url } = video;
+						channelID = message.channel.id;
 
 					if (queue && queue.size > 0) {
 						setSongInQueue(songStoreGuild, authorID, channelID, video);
@@ -39,8 +38,8 @@ module.exports = {
 					} else {
 						createGuildSettings(songStore, songStoreGuild, message.guild.id);
 						setSongInQueue(songStoreGuild, authorID, channelID, video);
-						play(bot, songStoreGuild, channelID, memberConnection, video);
-						finish(bot, botConnection, songStoreGuild, video);
+						play(bot, songStoreGuild, memberConnection);
+						finish(bot, botConnection, songStoreGuild, memberConnection);
 					}
 				}
 			}

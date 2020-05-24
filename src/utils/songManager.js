@@ -18,17 +18,18 @@ const createGuildSettings = (songStore, guildStoreSong, guildID) => {
 const dispatcher = async (guildStore) => {
 	const { url } = guildStore.queue.first(),
 		streamOptions = {
-			volume: 1, 
-			highWaterMark: 1<<25, 
-			type: 'ogg/opus', 
-			bitrate: 'auto', 
+			volume: 1,
+			highWaterMark: 1<<25,
+			type: 'ogg/opus',
+			bitrate: 'auto',
 		};
 
 	guildStore.dispatcher = await guildStore.connection
 		.play(await ytdl(url, streamOptions));
 }
 
-const play = async (bot, guildStore, channelID, connection, video) => {
+const play = async (bot, guildStore, connection) => {
+	const { textChannelID, name } = guildStore.queue.first();
 	if (!guildStore.connection) {
 		guildStore.connection = await connection.join().catch(console.error);
 	}
@@ -37,9 +38,9 @@ const play = async (bot, guildStore, channelID, connection, video) => {
 		dispatcher(guildStore);
 	}
 
-	const channel = bot.channels.cache.get(channelID);
+	const channel = bot.channels.cache.get(textChannelID);
 
-	channel.send(`Tocando agora: ${video.title}`).catch(console.error);
+	channel.send(`Tocando agora: ${name}`).catch(console.error);
 }
 
 const formatTime = (s) => {
@@ -57,7 +58,7 @@ const setSongInQueue = (guildStore, authorID, channelID, video) => {
 	});
 }
 
-const finish = (bot, botConnection, songStoreGuild, video) => {
+const finish = (bot, botConnection, songStoreGuild, memberConnection) => {
 	setTimeout(() => {
 		songStoreGuild.dispatcher.on('finish', () => {
 			const { textChannelID } = songStoreGuild.queue.first(),
@@ -66,7 +67,7 @@ const finish = (bot, botConnection, songStoreGuild, video) => {
 			songStoreGuild.queue.delete(firstSong.id);
 
 			if (songStoreGuild.queue.size > 0) {
-				return play(bot, songStoreGuild, video, authorID, channelID, memberConnection, video.video_url);
+				return play(bot, songStoreGuild, memberConnection);
 			} else {
 				const channel = bot.channels.cache.get(textChannelID);
 
