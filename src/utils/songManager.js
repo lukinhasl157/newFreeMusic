@@ -15,13 +15,15 @@ const createGuildSettings = (songStore, guildStoreSong, guildID) => {
 	songStore.set(guildID, guildStoreSong);
 }
 
-const dispatcher = async (guildStore, url) => {
-	const streamOptions = {
-		volume: 1, 
-		highWaterMark: 1<<25, 
-		type: 'ogg/opus', 
-		bitrate: 'auto', 
-	};
+const dispatcher = async (guildStore) => {
+	const { url } = guildStore.queue.first(),
+		streamOptions = {
+			volume: 1, 
+			highWaterMark: 1<<25, 
+			type: 'ogg/opus', 
+			bitrate: 'auto', 
+		};
+
 	guildStore.dispatcher = await guildStore.connection
 		.play(await ytdl(url, streamOptions));
 }
@@ -32,7 +34,7 @@ const play = async (bot, guildStore, channelID, connection, video) => {
 	}
 
 	if (!guildStore.dispatcher) {
-		dispatcher(guildStore, video.video_url);
+		dispatcher(guildStore);
 	}
 
 	const channel = bot.channels.cache.get(channelID);
@@ -63,7 +65,7 @@ const finish = (bot, botConnection, songStoreGuild) => {
 
 			songStoreGuild.queue.delete(firstSong.id);
 
-			if (songStoreGuild.songs.size > 0) {
+			if (songStoreGuild.queue.size > 0) {
 				return play(bot, songStoreGuild, video, authorID, channelID, memberConnection, video.video_url);
 			} else {
 				const channel = bot.channels.cache.get(textChannelID);
