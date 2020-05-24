@@ -40,7 +40,7 @@ module.exports = {
 						createGuildSettings(songStore, songStoreGuild, message.guild.id);
 						setSongInQueue(songStoreGuild, authorID, channelID, video);
 						play(bot, songStoreGuild, channelID, memberConnection, video);
-						finish(songStoreGuild);
+						finish(bot, botConnection, songStoreGuild);
 					}
 				}
 			}

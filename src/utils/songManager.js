@@ -55,18 +55,18 @@ const setSongInQueue = (guildStore, authorID, channelID, video) => {
 	});
 }
 
-const finish = (songStoreGuild) => {
+const finish = (bot, botConnection, songStoreGuild) => {
 	setTimeout(() => {
 		songStoreGuild.dispatcher.on('finish', () => {
 			const { textChannelID } = songStoreGuild.queue.first(),
 				firstSong = songStoreGuild.queue.first();
 
-			songsongStoreGuild.queue.delete(firstSong.id);
+			songStoreGuild.queue.delete(firstSong.id);
 
 			if (songStoreGuild.songs.size > 0) {
 				return play(bot, songStoreGuild, video, authorID, channelID, memberConnection, video.video_url);
 			} else {
-				const channel = message.guild.channels.cache.get(textChannelID);
+				const channel = bot.channels.cache.get(textChannelID);
 
 				if (botConnection) botConnection.leave();
 
