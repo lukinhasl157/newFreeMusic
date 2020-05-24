@@ -6,7 +6,7 @@ module.exports = {
   aliases: ['evaluate', 'code'],
   category: 'Normais',
   description: 'Executar um código',
-  run: ({ message, bot, args, guild, MessageEmbed, messageStore, songStore, guildStoreSong }) => {
+  run: ({ message, bot, args, guild, MessageEmbed, messageStore, songStore, songStoreGuild }) => {
     const { developers } = require('../utils/devs');
 
     if (!developers.includes(message.author.id)) {

@@ -77,7 +77,7 @@ const finish = (bot, botConnection, songStoreGuild, memberConnection) => {
 				channel.send('As músicas acabaram.');
 			}
 		});
-	}, 5000);
+	}, 2000);
 }
 
 module.exports = { play, createGuildSettings, finish, setSongInQueue };
