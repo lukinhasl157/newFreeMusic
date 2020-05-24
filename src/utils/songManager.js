@@ -29,18 +29,15 @@ const dispatcher = async (guildStore) => {
 }
 
 const play = async (bot, guildStore, connection) => {
-	const { textChannelID, name } = guildStore.queue.first();
+	const { textChannelID, name } = guildStore.queue.first(),
+		channel = bot.channels.cache.get(textChannelID);
+
 	if (!guildStore.connection) {
 		guildStore.connection = await connection.join().catch(console.error);
 	}
 
-	if (!guildStore.dispatcher) {
-		dispatcher(guildStore);
-	}
-
-	const channel = bot.channels.cache.get(textChannelID);
-
-	channel.send(`Tocando agora: ${name}`).catch(console.error);
+	dispatcher(guildStore);
+	channel.send(`Tocando agora: ${name}`);
 }
 
 const formatTime = (s) => {
