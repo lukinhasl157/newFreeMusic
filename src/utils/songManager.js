@@ -69,11 +69,12 @@ const finish = (bot, botConnection, songStoreGuild, memberConnection) => {
 			if (songStoreGuild.queue.size > 0) {
 				return play(bot, songStoreGuild, memberConnection);
 			} else {
+				console.log('finish');
 				const channel = bot.channels.cache.get(textChannelID);
 
 				if (botConnection) botConnection.leave();
 
-				return channel.send('As músicas acabaram.');
+				channel.send('As músicas acabaram.');
 			}
 		});
 	}, 5000);
