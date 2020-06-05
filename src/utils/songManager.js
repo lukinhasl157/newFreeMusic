@@ -40,7 +40,6 @@ const play = async (bot, guildStore, botConnection, memberConnection) => {
 	}
 
 	if (!guildStore.dispatcher) dispatcher(guildStore);
-	setTimeout(() => finish(bot, botConnection, guildStore, memberConnection), 2000);
 	channel.send(`Now playing: ${name}`);
 }
 
