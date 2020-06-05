@@ -9,6 +9,7 @@
     "dotenv": "^8.2.0",
     "ffmpeg-static": "^4.2.2",
     "mongoose": "^5.9.15",
+    "prism-media": "^1.2.2",
     "scrape-youtube": "^0.2.0",
     "ytdl-core": "^2.1.4",
     "ytdl-core-discord": "^1.2.0"
