@@ -1,12 +1,13 @@
 
 const { QueueStore } = require('./collections');
-const ytdl = require('ytdl-core');
+const { messageStore } = require('./messages');
+const ytdl = require('ytdl-core-discord');
 
 const createGuildSettings = (songStore, guildStoreSong, guildID) => {
 	if (!guildStoreSong.queue) {
 		guildStoreSong.queue = new QueueStore();
 		guildStoreSong.id = guildID;
-		guildStoreSong.volume = 1;
+		guildStoreSong.volume = 0.5;
 		guildStoreSong.resumed = null;
 		guildStoreSong.dispatcher = null;
 		guildStoreSong.repeat = false;
@@ -18,26 +19,29 @@ const createGuildSettings = (songStore, guildStoreSong, guildID) => {
 const dispatcher = async (guildStore) => {
 	const { url } = guildStore.queue.first(),
 		streamOptions = {
-			volume: 1,
-			highWaterMark: 1<<25,
-			type: 'ogg/opus',
+			volume: guildStore.volume,
+			type: 'opus',
 			bitrate: 'auto',
 		};
 
 	guildStore.dispatcher = await guildStore.connection
-		.play(await ytdl(url, streamOptions));
+		.play(await ytdl(url), streamOptions)
+		.on('finish', () => {
+			finish(bot, botConnection, songStoreGuild, memberConnection);
+		}).on('error', (e) => console.error(e));
 }
 
-const play = async (bot, guildStore, connection) => {
+const play = async (bot, guildStore, botConnection, memberConnection) => {
 	const { textChannelID, name } = guildStore.queue.first(),
 		channel = bot.channels.cache.get(textChannelID);
 
 	if (!guildStore.connection) {
-		guildStore.connection = await connection.join().catch(console.error);
+		guildStore.connection = await memberConnection.join().catch(console.error);
 	}
 
-	dispatcher(guildStore);
-	channel.send(`Tocando agora: ${name}`);
+	if (!guildStore.dispatcher) dispatcher(guildStore);
+	setTimeout(() => finish(bot, botConnection, guildStore, memberConnection), 2000);
+	channel.send(`Now playing: ${name}`);
 }
 
 const formatTime = (s) => {
@@ -45,38 +49,34 @@ const formatTime = (s) => {
 }
 
 const setSongInQueue = (guildStore, authorID, channelID, video) => {
-	guildStore.queue.set(video.video_id, {
+	guildStore.queue.set(video.id, {
 		name: video.title,
-		url: video.video_url,
-		id: video.video_id,
-		duration: formatTime(video.length_seconds),
+		url: video.link,
+		thumbnail: video.thumbnail,
+		id: video.id,
+		duration: formatTime(video.duration),
 		author: authorID,
 		textChannelID: channelID,
 	});
 }
 
 const finish = (bot, botConnection, songStoreGuild, memberConnection) => {
-	setTimeout(() => {
-		songStoreGuild.dispatcher.on('finish', () => {
-			console.log('finish emited');
-			const { textChannelID } = songStoreGuild.queue.first(),
-				firstSong = songStoreGuild.queue.first();
+	songStoreGuild.dispatcher.on('finish', () => {
+		const firstSong = songStoreGuild.queue.first(),
+			{ textChannelID } = firstSong;
 
-			songStoreGuild.queue.delete(firstSong.id);
+		songStoreGuild.queue.delete(firstSong.id);
 
-			console.log(songStoreGuild.queue.size);
-			if (songStoreGuild.queue.size > 0) {
-				return play(bot, songStoreGuild, memberConnection);
-			} else {
-				console.log('finish');
-				const channel = bot.channels.cache.get(textChannelID);
+		if (songStoreGuild.queue.size > 0) {
+			return play(bot, songStoreGuild, memberConnection);
+		} else {
+			const channel = bot.channels.cache.get(textChannelID);
 
-				if (botConnection) botConnection.leave();
+			if (botConnection) botConnection.leave();
 
-				channel.send('As músicas acabaram.');
-			}
-		});
-	}, 2000);
+			channel.send('The song has ended.');
+		}
+	});
 }
 
 module.exports = { play, createGuildSettings, finish, setSongInQueue };

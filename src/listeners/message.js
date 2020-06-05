@@ -1,6 +1,7 @@
 const { MessageEmbed } = require('discord.js');
 const Guild = require('../database/Guild');
 const { messageStore } = require('../utils/messages');
+const cooldown = new Set();
 
 module.exports = {
 	run: async (message) => {
@@ -18,8 +19,8 @@ module.exports = {
 
 		if (message.content.toLowerCase().startsWith(prefix)) {
 			const args = message.content.slice(prefix.length).split(' '),
-				cooldown = new Set(),
 				songStore = message.client.songs,
+				guildLanguage = messageStore[guild.language],
 				songStoreGuild = songStore.get(message.guild.id) || {},
 				commandName = args.shift().toLowerCase(),
 				command = message.client.commands.get(commandName) ||
@@ -37,9 +38,9 @@ module.exports = {
 						songStoreGuild,
 						message,
 						guild,
+						guildLanguage,
 						args,
 						MessageEmbed,
-						messageStore,
 					});
 					cooldown.add(message.author.id);
 					setTimeout(() => cooldown.delete(message.author.id), 3000);

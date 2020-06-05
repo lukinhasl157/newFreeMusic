@@ -7,5 +7,9 @@ const Guild = new Schema({
     type: String,
     default: process.env.PREFIX,
   },
+  language: {
+  	type: String,
+  	default: 'ptBR'
+  }
 });
 module.exports = model('Guild', Guild);
