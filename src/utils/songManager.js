@@ -16,7 +16,7 @@ const createGuildSettings = (songStore, guildStoreSong, guildID) => {
 	songStore.set(guildID, guildStoreSong);
 }
 
-const dispatcher = async (guildStore) => {
+const dispatcher = async (guildStore, bot, botConnection, memberConnection) => {
 	const { url } = guildStore.queue.first(),
 		streamOptions = {
 			volume: guildStore.volume,
@@ -27,7 +27,7 @@ const dispatcher = async (guildStore) => {
 	guildStore.dispatcher = await guildStore.connection
 		.play(await ytdl(url), streamOptions)
 		.on('finish', () => {
-			finish(bot, botConnection, songStoreGuild, memberConnection);
+			finish(bot, botConnection, guildStore, guildStore);
 		}).on('error', (e) => console.error(e));
 }
 
@@ -39,7 +39,7 @@ const play = async (bot, guildStore, botConnection, memberConnection) => {
 		guildStore.connection = await memberConnection.join().catch(console.error);
 	}
 
-	if (!guildStore.dispatcher) dispatcher(guildStore);
+	if (!guildStore.dispatcher) dispatcher(guildStore, bot, botConnection, memberConnection)
 	channel.send(`Now playing: ${name}`);
 }
 
